@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.*;
+//import static org.junit.Assert.*;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -53,5 +57,33 @@ public class BookWebControllerTest {
                 presenceOfElementLocated(By.id("drama")));
 
         assertTrue(text.getText().contains("drama"));
+    }
+
+    @Test
+    @DisplayName("When search epic fantasy and can add a review with content on the book 'The Way of Kings'")
+    public void ReviewTestFantasy() {
+        driver.get("http://localhost:8080/");
+        WebElement topic = driver.findElement(By.name("topic"));
+        topic.sendKeys("epic fantasy");
+        WebElement boton = driver.findElement(By.id("search-button"));
+        boton.submit();
+
+        WebElement book = driver.findElement(By.id("The Way of Kings"));
+        book.click();
+
+        WebElement nickname = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[1]/input"));
+        nickname.sendKeys("Juanito08");
+        WebElement review = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[2]/textarea"));
+        review.sendKeys("Muy buen libro, pero le faltaron loot boxes");
+        WebElement botonReview = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div/form/button"));
+        botonReview.submit();
+
+       // WebElement nombreReview = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/div[2]"));
+        WebElement textReview = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/a"));
+
+        List<WebElement> comments = driver.findElements(By.className("comment"));
+
+
+        assertEquals("Muy buen libro, pero le faltaron loot boxes", comments.get(comments.size() - 1).findElement(By.className("text")).getText());
     }
 }
