@@ -25,7 +25,6 @@ public class BookWebControllerTest {
     @BeforeAll
     public static void setupClass() {
         WebDriverManager.chromedriver().setup();
-
     }
 
    @BeforeEach
@@ -42,11 +41,6 @@ public class BookWebControllerTest {
         }
     }
 
-    /*@AfterAll
-    public void commentDeletion() {
-
-    }*/
-
     @Test
     @DisplayName("When search drama and pick first option, the book has the drama target")
     public void DramaTarget() {
@@ -61,38 +55,48 @@ public class BookWebControllerTest {
 
         WebElement text = wait2.until(
                 presenceOfElementLocated(By.id("drama")));
+
+
         assertTrue(text.getText().contains("drama"));
     }
 
     @Test
-    @DisplayName("When search epic fantasy and can add a review with content on the book 'The Way of Kings'")
-    public void ReviewFullTest() {;
+    @DisplayName("When search epic fantasy and you add a review with content on the book 'The Way of Kings'")
+    public void ReviewFullTest() {
         topic.sendKeys("epic fantasy");
         WebElement boton = driver.findElement(By.id("search-button"));
         boton.submit();
 
         WebDriverWait waitList = new WebDriverWait(driver, Duration.ofSeconds(5));
-        WebElement book = waitList.until(presenceOfElementLocated(By.id("The Way of Kings")));
+        WebElement book = waitList.until(
+                presenceOfElementLocated(By.id("The Way of Kings")));
         book.click();
 
         WebDriverWait waitFormulario = new WebDriverWait(driver, Duration.ofSeconds(5));
-        WebElement nickname = waitFormulario.until(presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[1]/input")));
+        WebElement nickname = waitFormulario.until(
+                presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[1]/input")));
         nickname.sendKeys("Juanito08");
-        WebElement review = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[2]/textarea"));
-        review.sendKeys("Muy buen libro, pero le faltaron loot boxes");
-        WebElement botonReview = driver.findElement(By.xpath("/html/body/div[2]/div/div[17]/div/form/button"));
+
+        String reviewText = "Muy buen libro, te quedas con ganas de más. Esperando su continuación";
+
+        WebElement review = driver.findElement(
+                By.xpath("/html/body/div[2]/div/div[17]/div/form/div[2]/textarea"));
+        review.sendKeys(reviewText);
+        WebElement botonReview = driver.findElement(
+                By.xpath("/html/body/div[2]/div/div[17]/div/form/button"));
         botonReview.submit();
 
         WebDriverWait waitReview = new WebDriverWait(driver, Duration.ofSeconds(5));
-        WebElement textReview = waitReview.until(presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/a")));
+        WebElement textReview = waitReview.until(
+                presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/a")));
 
         List<WebElement> comments = driver.findElements(By.className("comment"));
 
 
-        assertEquals("Muy buen libro, pero le faltaron loot boxes", comments.get(comments.size() - 1).findElement(By.className("text")).getText());
+        assertEquals(reviewText, comments.get(comments.size() - 1).findElement(By.className("text")).getText());
     }
     @Test
-    @DisplayName("When search epic fantasy and can add a review without content on the book 'Words of Radiance'")
+    @DisplayName("When search epic fantasy and you add a review without content on the book 'Words of Radiance'")
     public void ReviewEmptyTest() {
         topic.sendKeys("epic fantasy");
         WebElement boton = driver.findElement(By.id("search-button"));
@@ -103,10 +107,11 @@ public class BookWebControllerTest {
         book.click();
 
         WebDriverWait waitReview = new WebDriverWait(driver, Duration.ofSeconds(5));
-        WebElement botonReview = waitReview.until(presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[16]/div/form/button")));
+        WebElement botonReview = waitReview.until(
+                presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[16]/div/form/button")));
         botonReview.submit();
 
-       // assertThrows(org.openqa.selenium.NoSuchElementException.class, () -> driver.findElement(By.id("error-message")));
+
         assertTrue(driver.findElement(By.id("error-message")).isDisplayed());
     }
 
