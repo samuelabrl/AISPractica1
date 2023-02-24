@@ -1,53 +1,46 @@
 package es.codeurjc.ais.book;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import es.codeurjc.ais.notification.NotificationService;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.junit.Assert.*;
-import org.aspectj.apache.bcel.classfile.Module;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestClientException;
 
-import org.hamcrest.CoreMatchers;
-import java.util.*;
+import es.codeurjc.ais.notification.NotificationService;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class BookServiceTest {
 
 
     @Test
-    public void findAllSize() {
+    @DisplayName("When we search for 'magic' we get 2 books and a notification is triggered. ")
+    public void findAllByCategoryTest() {
         OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
         NotificationService notificationService = mock(NotificationService.class);
 
-        String[] subjects = new String[]{"magic"};
-
-
+        List<OpenLibraryService.BookData> list_books = new ArrayList<>();
         OpenLibraryService.BookData book1 = new OpenLibraryService.BookData(
                 "A Midsummer Night's Dream",
                 "/works/OL259010W",
                 null,
                 null,
                 new String[]{"magic"}
-                            );
+        );
         OpenLibraryService.BookData book2 = new OpenLibraryService.BookData(
-                "A Midsummer 222Night's Dream",
-                "/works/OL679010W",
+                "The Marvelous Land of Oz",
+                "/works/OL18396W",
                 null,
                 null,
                 new String[]{"magic"}
         );
-        List <OpenLibraryService.BookData> list_books = new ArrayList<>();
         list_books.add(book2);
         list_books.add(book1);
-        when(openLibraryService.searchBooks("magic",10)).thenReturn(list_books);
+
+        when(openLibraryService.searchBooks("magic", 10)).thenReturn(list_books);
 
         BookService service = new BookService(openLibraryService, notificationService);
         List<Book> lista = service.findAll("magic");
@@ -57,19 +50,18 @@ public class BookServiceTest {
 
     }
 
-   /* @Test
-    public void findAllNotification() {
-        NotificationService notificationService = mock(NotificationService.class);
-        when(notificationService.info()).thenReturn();
-        BookService service = new BookService(new OpenLibraryService(), notificationService);
-        List<Book> lista = service.findAll("magic");
-
-        verify(notificationService);
-    }*/
 
     @Test
-    public void findById() {
-        BookService service = new BookService(new OpenLibraryService(), new NotificationService());
-        service.findById("ID");
+    @DisplayName("When searching for a book by ID, nothing is returned and a notification is triggered.")
+    public void findBookByIdTest() {
+        OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
+        NotificationService notificationService = mock(NotificationService.class);
+
+        BookService service = new BookService(openLibraryService, notificationService);
+
+        when(openLibraryService.getBook("OL18396W")).thenThrow(new HttpClientErrorException(HttpStatusCode.valueOf(404)));
+        service.findById("OL18396W");
+        verify(notificationService).error(anyString());
     }
+
 }

@@ -91,8 +91,6 @@ public class BookWebControllerTest {
                 presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/a")));
 
         List<WebElement> comments = driver.findElements(By.className("comment"));
-
-
         assertEquals(reviewText, comments.get(comments.size() - 1).findElement(By.className("text")).getText());
     }
     @Test
