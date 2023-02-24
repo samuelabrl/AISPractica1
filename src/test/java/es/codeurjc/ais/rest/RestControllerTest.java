@@ -1,5 +1,6 @@
 package es.codeurjc.ais.rest;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import es.codeurjc.ais.book.*;
 
 import static io.restassured.RestAssured.*;
@@ -9,6 +10,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,19 +46,26 @@ public class RestControllerTest {
     @Test
     @DisplayName("Checks the recovery of the first ?topic=fantasy book and creates a review")
     public void testCreacionReview() {
-        String[] response =
+        Response response =
                 given().
                         contentType("application/json").
                 when().
                         get("/api/books/?topic=fantasy").
                 then().
-                        extract().response().as(String[].class);
-        System.out.println(response);
-       /* given().pathParam("id", ).
-                param("id", 1).
-                param("nickname", "Samuel").
-                param("content", "Me encanto el libro, muy recomendable").
-        when().post("/api/books/{id}");*/
+                        extract().response().andReturn();
+
+        //JsonPath jsonResponse = response.jsonPath();
+        String bookId = response.jsonPath().get("[0].id");
+
+        given().
+               pathParam("id", bookId).
+               param("id", 5).
+               param("nickname", "Samuel").
+               param("content", "Me encanto el libro, muy recomendable").
+        when().
+               post("/api/books/{id}/review").
+        then().
+               statusCode(201);
     }
 
 }
