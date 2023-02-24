@@ -80,6 +80,7 @@
 			<scope>test</scope>
 		</dependency>
 
+
 		<!-- Dependencias Rest assured -->
 		<dependency>
 			<groupId>io.rest-assured</groupId>
