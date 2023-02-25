@@ -9,6 +9,9 @@ import static org.hamcrest.Matchers.*;
 
 import static org.junit.Assert.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 
 public class RestControllerTest {
@@ -45,7 +49,7 @@ public class RestControllerTest {
 
     @Test
     @DisplayName("Checks the recovery of the first ?topic=fantasy book and creates a review")
-    public void testCreacionReview() {
+    public void testCreacionReview() throws JSONException {
         Response response =
                 given().
                         contentType("application/json").
@@ -57,15 +61,56 @@ public class RestControllerTest {
         //JsonPath jsonResponse = response.jsonPath();
         String bookId = response.jsonPath().get("[0].id");
 
+        JSONObject body = new JSONObject();
+        // Aunque en la petición POST indiques el id = 1 si ese id ya está asignado el Review service asignará otro id
+        body.put("id", 1);
+        body.put("nickname", "Samuel");
+        body.put("content", "Me encanto el libro, muy recomendable");
+
         given().
-               pathParam("id", bookId).
-               param("id", 5).
-               param("nickname", "Samuel").
-               param("content", "Me encanto el libro, muy recomendable").
+                request().
+                body(body.toString()).
+                contentType("application/json").
+                pathParam("bookId", bookId).
         when().
-               post("/api/books/{id}/review").
+                post("/api/books/{bookId}/review").
         then().
-               statusCode(201);
+                statusCode(201);
     }
 
+    @Test
+    @DisplayName("Tests the correct deletion of a review")
+    public void testBorradoReview() throws JSONException {
+        // The way of kings id
+        String bookId = "OL15358691W";
+
+        Response book =
+                given().
+                        contentType("application/json").
+                        pathParam("bookId", bookId).
+                when().
+                        get("/api/books/{bookId}").
+                then().
+                        extract().response().andReturn();
+
+        List<String> reviews = book.jsonPath().get("reviews");
+        int lastReviewId = reviews.size();
+
+        JSONObject body = new JSONObject();
+        body.put("id", lastReviewId + 1);
+        body.put("nickname", "Samuel");
+        body.put("content", "Me encanto el libro, muy recomendable");
+
+        given().
+                request().
+                body(body.toString()).
+                contentType("application/json").
+                pathParam("bookId", bookId).
+                when().
+                post("/api/books/{bookId}/review");
+        given().
+                pathParam("bookId", bookId).
+                pathParam("reviewId", lastReviewId + 1).when().
+                get("/api/books/{bookId}/review/{reviewId}").then().statusCode(200);
+    }
 }
