@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class BookServiceTest {
 
-
     @Test
     @DisplayName("When we search for 'magic' we get 2 books and a notification is triggered. ")
     public void findAllByCategoryTest() {
@@ -58,8 +57,8 @@ public class BookServiceTest {
         NotificationService notificationService = mock(NotificationService.class);
 
         BookService service = new BookService(openLibraryService, notificationService);
-
         when(openLibraryService.getBook("OL18396W")).thenThrow(new HttpClientErrorException(HttpStatusCode.valueOf(404)));
+
         service.findById("OL18396W");
         verify(notificationService).error(anyString());
     }
