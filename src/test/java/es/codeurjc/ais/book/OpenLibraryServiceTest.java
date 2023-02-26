@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OpenLibraryServiceTest {
 
@@ -40,6 +39,14 @@ public class OpenLibraryServiceTest {
             fail("Should not have thrown any exception");
         }
 
+    }
+
+    @Test
+    public void findByIDTestMejorado() {
+        assertDoesNotThrow(() -> {
+            OpenLibraryService.BookData book = service.getBook("OL8479867W");
+            assertEquals(book.key, "/works/OL8479867W");
+        });
     }
 
 }
