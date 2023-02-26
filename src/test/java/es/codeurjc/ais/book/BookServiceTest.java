@@ -39,7 +39,8 @@ public class BookServiceTest {
         list_books.add(book2);
         list_books.add(book1);
 
-        when(openLibraryService.searchBooks("magic", 10)).thenReturn(list_books);
+        when(openLibraryService.searchBooks("magic", 10)).
+                thenReturn(list_books);
 
         BookService service = new BookService(openLibraryService, notificationService);
         List<Book> lista = service.findAll("magic");
@@ -57,7 +58,8 @@ public class BookServiceTest {
         NotificationService notificationService = mock(NotificationService.class);
 
         BookService service = new BookService(openLibraryService, notificationService);
-        when(openLibraryService.getBook("OL18396W")).thenThrow(new HttpClientErrorException(HttpStatusCode.valueOf(404)));
+        when(openLibraryService.getBook("OL18396W")).
+                thenThrow(new HttpClientErrorException(HttpStatusCode.valueOf(404)));
 
         service.findById("OL18396W");
         verify(notificationService).error(anyString());
