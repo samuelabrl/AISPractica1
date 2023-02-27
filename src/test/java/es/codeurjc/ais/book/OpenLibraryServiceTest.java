@@ -30,19 +30,8 @@ public class OpenLibraryServiceTest {
     }
 
     @Test
-    @DisplayName("When we search 'The Name of the Wind' we get that book and any exception are thrown")
+    @DisplayName("When we search 'The Name of the Wind' we get that book and no exception are thrown")
     public void findByIDTest() {
-        try {
-            OpenLibraryService.BookData book = service.getBook("OL8479867W");
-            assertEquals(book.key, "/works/OL8479867W");
-        } catch (Exception e) {
-            fail("Should not have thrown any exception");
-        }
-
-    }
-
-    @Test
-    public void findByIDTestMejorado() {
         assertDoesNotThrow(() -> {
             OpenLibraryService.BookData book = service.getBook("OL8479867W");
             assertEquals(book.key, "/works/OL8479867W");

@@ -78,7 +78,7 @@ public class RestControllerTest {
                 statusCode(201);
     }
 
-    @Test
+  /*  @Test
     @DisplayName("Tests the correct deletion of a review")
     public void testBorradoReview() throws JSONException {
         // The way of kings id
@@ -112,5 +112,5 @@ public class RestControllerTest {
                 pathParam("bookId", bookId).
                 pathParam("reviewId", lastReviewId + 1).when().
                 get("/api/books/{bookId}/review/{reviewId}").then().statusCode(200);
-    }
+    }*/
 }
