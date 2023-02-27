@@ -30,7 +30,7 @@ public class OpenLibraryServiceTest {
     }
 
     @Test
-    @DisplayName("When we search 'The Name of the Wind' we get that book and no exception are thrown")
+    @DisplayName("When 'The name of the Wind' is searched we get that book and no exception is thrown")
     public void findByIDTest() {
         assertDoesNotThrow(() -> {
             OpenLibraryService.BookData book = service.getBook("OL8479867W");

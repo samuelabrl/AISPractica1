@@ -21,7 +21,7 @@ public class BookServiceTest {
         OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
         NotificationService notificationService = mock(NotificationService.class);
 
-        List<OpenLibraryService.BookData> list_books = new ArrayList<>();
+        List<OpenLibraryService.BookData> listBooks = new ArrayList<>();
         OpenLibraryService.BookData book1 = new OpenLibraryService.BookData(
                 "A Midsummer Night's Dream",
                 "/works/OL259010W",
@@ -36,11 +36,11 @@ public class BookServiceTest {
                 null,
                 new String[]{"magic"}
         );
-        list_books.add(book2);
-        list_books.add(book1);
+        listBooks.add(book2);
+        listBooks.add(book1);
 
         when(openLibraryService.searchBooks("magic", 10)).
-                thenReturn(list_books);
+                thenReturn(listBooks);
 
         BookService service = new BookService(openLibraryService, notificationService);
         List<Book> lista = service.findAll("magic");
