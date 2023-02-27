@@ -1,19 +1,13 @@
 package es.codeurjc.ais.rest;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import es.codeurjc.ais.book.*;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
-import static org.hamcrest.Matchers.*;
-
 import static org.junit.Assert.*;
 
+import es.codeurjc.ais.book.Book;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +27,7 @@ public class RestControllerTest {
     @DisplayName("Sends a GET petition to the RestController with the request param topic")
     public void testGetTopicDrama() {
 
-        Collection list =
+        Collection<Book> list =
 
         given().
                 contentType("application/json").
@@ -41,7 +35,7 @@ public class RestControllerTest {
                 get("/api/books/?topic=drama").
         then().
                 statusCode(200).
-                extract().response().as(Collection.class);
+                extract().jsonPath().getList(".", Book.class);
 
 
         Assertions.assertEquals(10, list.size());
@@ -50,15 +44,14 @@ public class RestControllerTest {
     @Test
     @DisplayName("Checks the recovery of the first ?topic=fantasy book and creates a review")
     public void testCreacionReview() throws JSONException {
-        Response response =
-                given().
+        Response response = get("/api/books/?topic=drama");
+                /*given().
                         contentType("application/json").
                 when().
                         get("/api/books/?topic=drama").
                 then().
-                        extract().response().andReturn();
+                        extract().response().andReturn();*/
 
-        //JsonPath jsonResponse = response.jsonPath();
         String bookId = response.jsonPath().get("[0].id");
 
         JSONObject body = new JSONObject();
@@ -148,26 +141,19 @@ public class RestControllerTest {
                 body(body.toString()).
                 contentType("application/json").
                 pathParam("bookId", bookId).
-                when().
-                post("/api/books/{bookId}/review").then().statusCode(201);
+        when().post("/api/books/{bookId}/review").
+        then().statusCode(201);
 
-
-        Response jsonLibro =
-                given().
-                        contentType("application/json").
-                        pathParam("bookId", bookId).
-                        when().
-                        get("/api/books/{bookId}").
-                        then().
-                        extract().response().andReturn();
+        Response jsonLibro = get("/api/books/OL15358691W");
 
         int reviewId = jsonLibro.jsonPath().get("reviews[-1].id");
 
-        System.err.println("El id es " + reviewId);
-
         given().
                 pathParam("bookId", bookId).
-                pathParam("reviewId", reviewId).when().
-                delete("/api/books/{bookId}/review/{reviewId}").then().statusCode(204);
+                pathParam("reviewId", reviewId).
+        when().
+                delete("/api/books/{bookId}/review/{reviewId}").
+        then().
+                statusCode(204);
     }
 }
