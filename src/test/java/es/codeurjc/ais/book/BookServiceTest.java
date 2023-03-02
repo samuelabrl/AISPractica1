@@ -10,17 +10,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import es.codeurjc.ais.notification.NotificationService;
+import org.mockito.Mock;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 
 public class BookServiceTest {
 
+
+    @Mock
+    OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
+    NotificationService notificationService = mock(NotificationService.class);
+
+
     @Test
     @DisplayName("When we search for 'magic' we get 2 books and a notification is triggered. ")
     public void findAllByCategoryTest() {
-        OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
-        NotificationService notificationService = mock(NotificationService.class);
-
         List<OpenLibraryService.BookData> listBooks = new ArrayList<>();
         OpenLibraryService.BookData book1 = new OpenLibraryService.BookData(
                 "A Midsummer Night's Dream",
@@ -47,16 +51,13 @@ public class BookServiceTest {
 
         assertEquals(2, lista.size());
         verify(notificationService).info(anyString());
-
+        listBooks.clear();
     }
 
 
     @Test
     @DisplayName("When searching for a book by ID, nothing is returned and a notification is triggered.")
     public void findBookByIdTest() {
-        OpenLibraryService openLibraryService = mock(OpenLibraryService.class);
-        NotificationService notificationService = mock(NotificationService.class);
-
         BookService service = new BookService(openLibraryService, notificationService);
         when(openLibraryService.getBook("OL18396W")).
                 thenThrow(new HttpClientErrorException(HttpStatusCode.valueOf(404)));
