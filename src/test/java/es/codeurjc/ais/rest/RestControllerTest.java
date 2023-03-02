@@ -2,7 +2,6 @@ package es.codeurjc.ais.rest;
 
 
 import static io.restassured.RestAssured.*;
-import static org.junit.Assert.*;
 
 import es.codeurjc.ais.book.Book;
 import org.json.JSONException;
@@ -10,13 +9,9 @@ import org.json.JSONObject;
 
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClientException;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
