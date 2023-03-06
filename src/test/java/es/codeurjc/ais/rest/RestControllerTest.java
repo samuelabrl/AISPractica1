@@ -91,8 +91,8 @@ public class RestControllerTest {
            que la aplicaión solo la estamos usando nosostros.
            Se comprueba que la lista de reviews contenga una con el número de id recibido en la respuesta de la petición
            en vez de simplemente hacer:
-           int idUltimaReview = libroDespuesReview.jsonPath().get("reviews.id[-1]") pues no nos garantizaría en aplicaión de verdad
-           que la resolución del test es correcto
+           int idUltimaReview = libroDespuesReview.jsonPath().get("reviews.id[-1]") pues no nos garantizaría en una aplicación en funcinamiento
+           que la resolución del test es correcta en todos los casos.
          */
         List<Review> listaReviews = libroDespuesReview.getReviews();
         //Funcional. Any match comprueba si algún elemento de stream satisface idReview == o.getId -> Si algún elemento de reviews coincide
