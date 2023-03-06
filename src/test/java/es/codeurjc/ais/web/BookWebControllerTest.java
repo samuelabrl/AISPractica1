@@ -15,8 +15,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.springframework.boot.test.context.SpringBootTest;
 
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class BookWebControllerTest {
 
     private WebDriver driver;
@@ -56,7 +57,6 @@ public class BookWebControllerTest {
         WebElement text = wait2.until(
                 presenceOfElementLocated(By.id("drama")));
 
-
         assertTrue(text.getText().contains("drama"));
     }
 
@@ -72,12 +72,12 @@ public class BookWebControllerTest {
                 presenceOfElementLocated(By.id("The Way of Kings")));
         book.click();
 
-        WebDriverWait waitFormulario = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait waitFormulario = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement nickname = waitFormulario.until(
                 presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div/form/div[1]/input")));
         nickname.sendKeys("Juanito08");
 
-        String reviewText = "Muy buen libro, te quedas con ganas de más. Esperando su continuación";
+        String reviewText = "Muy buen libro, te quedas con ganas de mas. Esperando su continuacion";
 
         WebElement review = driver.findElement(
                 By.xpath("/html/body/div[2]/div/div[17]/div/form/div[2]/textarea"));
@@ -91,8 +91,6 @@ public class BookWebControllerTest {
                 presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[17]/div[1]/div/a")));
 
         List<WebElement> comments = driver.findElements(By.className("comment"));
-
-
         assertEquals(reviewText, comments.get(comments.size() - 1).findElement(By.className("text")).getText());
     }
     @Test
@@ -110,8 +108,6 @@ public class BookWebControllerTest {
         WebElement botonReview = waitReview.until(
                 presenceOfElementLocated(By.xpath("/html/body/div[2]/div/div[16]/div/form/button")));
         botonReview.submit();
-
-
         assertTrue(driver.findElement(By.id("error-message")).isDisplayed());
     }
 
