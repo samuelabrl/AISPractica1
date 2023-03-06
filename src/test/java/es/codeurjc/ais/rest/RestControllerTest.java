@@ -1,26 +1,36 @@
 package es.codeurjc.ais.rest;
 
-
 import static io.restassured.RestAssured.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import es.codeurjc.ais.book.Book;
+import es.codeurjc.ais.book.BookDetail;
+import es.codeurjc.ais.review.Review;
+import io.restassured.RestAssured;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.restassured.response.Response;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class RestControllerTest {
+
+    @BeforeEach
+    public void setUp() {
+        RestAssured.port = 8080;
+    }
 
     @Test
     @DisplayName("Sends a GET petition to the RestController with the request param topic")
-    public void testGetTopicDrama() {
+    public void getTopicDramaYListaLongitu10Test() {
 
         Collection<Book> list =
 
@@ -33,115 +43,85 @@ public class RestControllerTest {
                 extract().jsonPath().getList(".", Book.class);
 
 
-        Assertions.assertEquals(10, list.size());
+        assertEquals(10, list.size());
     }
 
     @Test
     @DisplayName("Checks the recovery of the first ?topic=fantasy book and creates a review")
-    public void testCreacionReview() throws JSONException {
-        Response response = get("/api/books/?topic=drama");
-                /*given().
+    public void creacionReviewYCombrpobacionTest() throws JSONException {
+        Response libroAntesReview =
+                given().
                         contentType("application/json").
                 when().
                         get("/api/books/?topic=drama").
                 then().
-                        extract().response().andReturn();*/
-
-        String bookId = response.jsonPath().get("[0].id");
+                        extract().response().andReturn();
+        // get("/api/books/?topic=drama");
+        String bookId = libroAntesReview.jsonPath().get("[0].id");
 
         JSONObject body = new JSONObject();
-        // Aunque en la petición POST indiques el id = 1 si ese id ya está asignado el Review service asignará otro id
-        body.put("id", 1);
+        // No incluimos el id de review en la petición json pues nos la dá el servidor en la respuesta del put
         body.put("nickname", "Samuel");
         body.put("content", "Me encanto el libro, muy recomendable");
 
-        given().
-                request().
-                body(body.toString()).
-                contentType("application/json").
-                pathParam("bookId", bookId).
-        when().
-                post("/api/books/{bookId}/review").
-        then().
-                statusCode(201);
-    }
+        Response responsePut =
+                given().
+                        request().
+                        body(body.toString()).
+                        contentType("application/json").
+                        pathParam("bookId", bookId).
+                when().
+                        post("/api/books/{bookId}/review").
+                then().
+                        statusCode(201).
+                        extract().response();
 
-    @Test
-    @DisplayName("Tests the correct deletion of a review")
-    public void testBorradoReview() throws JSONException {
-        // The way of kings id
-        String bookId = "OL15358691W";
+        // Comprobación de que de verdad la review ha sido creada y no solo la petición ha sido correcta
 
-        Response book =
+        Integer idReviewEsperada = responsePut.jsonPath().get("id");
+        BookDetail libroDespuesReview =
                 given().
                         contentType("application/json").
                         pathParam("bookId", bookId).
                 when().
                         get("/api/books/{bookId}").
-                then().
-                        extract().response().andReturn();
-
-        // Aquí voy a dejarlo por ahora como size, pero para que fuese correcto deberías de ver el primer id del array y sumar el size
-
-        List<String> reviews = book.jsonPath().get("reviews");
-        int lastReviewId = reviews.size();
-
-        JSONObject body = new JSONObject();
-        body.put("id", lastReviewId + 1);
-        body.put("nickname", "Samuel");
-        body.put("content", "Me encanto el libro, muy recomendable");
-
-        given().
-                request().
-                body(body.toString()).
-                contentType("application/json").
-                pathParam("bookId", bookId).
-        when().
-                post("/api/books/{bookId}/review");
-
-
-        Response jsonLibro =
-                given().
-                        contentType("application/json").
-                        pathParam("bookId", bookId).
-                when().
-                        get("/api/books/{bookId}").
-                then().
-                        extract().response().andReturn();
-
-        //int reviewId = jsonLibro.jsonPath().get("reviews[" + lastReviewId + 1 + "].id");
-        int reviewId = jsonLibro.jsonPath().get("reviews[-1].id");
-
-        System.err.println("El id es " + reviewId);
-
-        given().
-                pathParam("bookId", bookId).
-                pathParam("reviewId", reviewId).when().
-                delete("/api/books/{bookId}/review/{reviewId}").then().statusCode(204);
+                then().extract().response().as(BookDetail.class);
+        /*
+           No podemos simplemente buscar .get("reviews.id[-1]") puesto que estamos asumiendo
+           que la aplicaión solo la estamos usando nosostros.
+           Se comprueba que la lista de reviews contenga una con el número de id recibido en la respuesta de la petición
+           en vez de simplemente hacer:
+           int idUltimaReview = libroDespuesReview.jsonPath().get("reviews.id[-1]") pues no nos garantizaría en aplicaión de verdad
+           que la resolución del test es correcto
+         */
+        List<Review> listaReviews = libroDespuesReview.getReviews();
+        //Funcional. Any match comprueba si algún elemento de stream satisface idReview == o.getId -> Si algún elemento de reviews coincide
+        assertTrue(listaReviews.stream().anyMatch(o -> idReviewEsperada == o.getId()));
     }
 
     @Test
     @DisplayName("Tests the correct deletion of a review")
-    public void testBorradoReview2() throws JSONException {
+    public void creacionReviewYBorradoTest() throws JSONException {
         // The way of kings id
         String bookId = "OL15358691W";
 
         JSONObject body = new JSONObject();
-        body.put("id", 1);
         body.put("nickname", "Samuel");
         body.put("content", "Me encanto el libro, muy recomendable");
 
-        given().
-                request().
-                body(body.toString()).
-                contentType("application/json").
-                pathParam("bookId", bookId).
-        when().post("/api/books/{bookId}/review").
-        then().statusCode(201);
+        Response respuesta =
+                given().
+                        request().
+                        body(body.toString()).
+                        contentType("application/json").
+                        pathParam("bookId", bookId).
+                when().
+                        post("/api/books/{bookId}/review").
+                then().
+                        statusCode(201).
+                        extract().response();
 
-        Response jsonLibro = get("/api/books/OL15358691W");
-
-        int reviewId = jsonLibro.jsonPath().get("reviews[-1].id");
+        int reviewId = respuesta.jsonPath().get("id");
 
         given().
                 pathParam("bookId", bookId).
@@ -150,5 +130,18 @@ public class RestControllerTest {
                 delete("/api/books/{bookId}/review/{reviewId}").
         then().
                 statusCode(204);
+
+        // Comprobación de que la review se ha borrado. Mismo caso anterior test
+        BookDetail libroDespuesReview =
+                given().
+                        contentType("application/json").
+                        pathParam("bookId", bookId).
+                when().
+                        get("/api/books/{bookId}").
+                then().
+                        extract().response().as(BookDetail.class);
+        List<Review> listaReviews = libroDespuesReview.getReviews();
+
+        assertFalse(listaReviews.stream().anyMatch(o -> reviewId == o.getId()));
     }
 }
